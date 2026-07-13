@@ -1,5 +1,8 @@
 import { create } from "zustand";
-import { getStream } from "../services/musicService";
+import {
+  getStream,
+  saveRecentSong,
+} from "../services/musicService";
 import type { Song } from "../types/song";
 
 interface PlayerStore {
@@ -21,13 +24,14 @@ interface PlayerStore {
 
   seekTo: (time: number) => void;
   setVolume: (volume: number) => void;
+
+  setRecentSongs: (songs: Song[]) => void;
 }
 
+const audio = new Audio();
+audio.volume = 0.8;
+
 export const usePlayerStore = create<PlayerStore>((set, get) => {
-  const audio = new Audio();
-
-  audio.volume = 0.8;
-
   audio.addEventListener("timeupdate", () => {
     set({
       currentTime: audio.currentTime,
@@ -63,15 +67,25 @@ export const usePlayerStore = create<PlayerStore>((set, get) => {
 
       await audio.play();
 
+      try {
+        await saveRecentSong({
+          youtubeId: song.id,
+          title: song.title,
+          artist: song.artist,
+          thumbnail: song.thumbnail,
+          duration: song.duration,
+        });
+      } catch (error) {
+        console.error("Failed to save recent song", error);
+      }
+
       const filtered = get().recentSongs.filter(
         (s) => s.id !== song.id
       );
 
       set({
         currentSong: song,
-
         isPlaying: true,
-
         recentSongs: [song, ...filtered].slice(0, 20),
       });
     },
@@ -105,6 +119,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => {
 
       set({
         volume,
+      });
+    },
+
+    setRecentSongs(songs) {
+      set({
+        recentSongs: songs,
       });
     },
   };

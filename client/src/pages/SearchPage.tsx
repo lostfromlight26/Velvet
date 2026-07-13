@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import SearchBar from "../components/SearchBar";
 import SongList from "../components/SongList";
 
-import { searchSongs } from "../services/musicService";
+import {
+  searchSongs,
+  getRecentSongs,
+} from "../services/musicService";
+
 import { usePlayerStore } from "../store/playerStore";
 
 import type { Song } from "../types/song";
@@ -14,7 +18,30 @@ function SearchPage() {
   const [loading, setLoading] = useState(false);
 
   const recentSongs = usePlayerStore((state) => state.recentSongs);
+  const setRecentSongs = usePlayerStore((state) => state.setRecentSongs);
   const playSong = usePlayerStore((state) => state.playSong);
+
+  useEffect(() => {
+    async function loadRecentSongs() {
+      try {
+        const response = await getRecentSongs();
+
+        const mappedSongs: Song[] = response.data.map((song: any) => ({
+          id: song.youtubeId,
+          title: song.title,
+          artist: song.artist,
+          thumbnail: song.thumbnail,
+          duration: song.duration,
+        }));
+
+        setRecentSongs(mappedSongs);
+      } catch (error) {
+        console.error("Failed to load recent songs", error);
+      }
+    }
+
+    loadRecentSongs();
+  }, [setRecentSongs]);
 
   async function handleSearch() {
     if (!query.trim()) return;
