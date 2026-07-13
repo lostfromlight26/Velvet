@@ -1,12 +1,14 @@
 import type { Song } from "../types/song";
-import { usePlayer } from "../context/PlayerContext";
+import { usePlayerStore } from "../store/playerStore";
 
 interface SongCardProps {
   song: Song;
 }
 
 function SongCard({ song }: SongCardProps) {
-  const { playSong, currentSong, isPlaying } = usePlayer();
+  const playSong = usePlayerStore((state) => state.playSong);
+  const currentSong = usePlayerStore((state) => state.currentSong);
+  const isPlaying = usePlayerStore((state) => state.isPlaying);
 
   const currentlyPlaying =
     currentSong?.id === song.id && isPlaying;

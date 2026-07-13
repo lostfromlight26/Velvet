@@ -1,4 +1,4 @@
-import { usePlayer } from "../context/PlayerContext";
+import { usePlayerStore } from "../store/playerStore";
 
 function formatTime(time: number) {
   if (!time || isNaN(time)) return "0:00";
@@ -13,12 +13,14 @@ function Player() {
   const {
     currentSong,
     isPlaying,
-    pauseSong,
-    resumeSong,
     currentTime,
     duration,
+    volume,
+    pauseSong,
+    resumeSong,
     seekTo,
-  } = usePlayer();
+    setVolume,
+  } = usePlayerStore();
 
   if (!currentSong) return null;
 
@@ -49,7 +51,6 @@ function Player() {
           justifyContent: "space-between",
           marginTop: "15px",
           marginBottom: "8px",
-          fontSize: "14px",
         }}
       >
         <span>{formatTime(currentTime)}</span>
@@ -64,21 +65,43 @@ function Player() {
         onChange={(e) => seekTo(Number(e.target.value))}
         style={{
           width: "100%",
-          marginBottom: "15px",
         }}
       />
 
-      <button
-        onClick={() => {
-          if (isPlaying) {
-            pauseSong();
-          } else {
-            resumeSong();
-          }
+      <div
+        style={{
+          marginTop: "15px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
         }}
       >
-        {isPlaying ? "⏸ Pause" : "▶ Resume"}
-      </button>
+        <button
+          onClick={() => {
+            if (isPlaying) {
+              pauseSong();
+            } else {
+              resumeSong();
+            }
+          }}
+        >
+          {isPlaying ? "⏸ Pause" : "▶ Resume"}
+        </button>
+
+        <span>🔊</span>
+
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={volume}
+          onChange={(e) => setVolume(Number(e.target.value))}
+          style={{
+            width: "150px",
+          }}
+        />
+      </div>
     </div>
   );
 }
