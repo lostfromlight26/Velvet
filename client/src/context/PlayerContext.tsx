@@ -21,6 +21,8 @@ interface PlayerContextType {
   pauseSong: () => void;
   resumeSong: () => void;
 
+  seekTo: (time: number) => void;
+
   audioRef: React.RefObject<HTMLAudioElement | null>;
 }
 
@@ -100,6 +102,13 @@ export function PlayerProvider({
     setIsPlaying(true);
   }
 
+  function seekTo(time: number) {
+    if (!audioRef.current) return;
+
+    audioRef.current.currentTime = time;
+    setCurrentTime(time);
+  }
+
   return (
     <PlayerContext.Provider
       value={{
@@ -110,6 +119,7 @@ export function PlayerProvider({
         playSong,
         pauseSong,
         resumeSong,
+        seekTo,
         audioRef,
       }}
     >

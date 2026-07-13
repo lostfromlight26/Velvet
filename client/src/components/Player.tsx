@@ -17,6 +17,7 @@ function Player() {
     resumeSong,
     currentTime,
     duration,
+    seekTo,
   } = usePlayer();
 
   if (!currentSong) return null;
@@ -52,16 +53,17 @@ function Player() {
         }}
       >
         <span>{formatTime(currentTime)}</span>
-
         <span>{formatTime(duration)}</span>
       </div>
 
-      <progress
-        value={currentTime}
+      <input
+        type="range"
+        min={0}
         max={duration || 0}
+        value={currentTime}
+        onChange={(e) => seekTo(Number(e.target.value))}
         style={{
           width: "100%",
-          height: "8px",
           marginBottom: "15px",
         }}
       />
