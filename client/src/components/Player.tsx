@@ -1,11 +1,22 @@
 import { usePlayer } from "../context/PlayerContext";
 
+function formatTime(time: number) {
+  if (!time || isNaN(time)) return "0:00";
+
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
 function Player() {
   const {
     currentSong,
     isPlaying,
     pauseSong,
     resumeSong,
+    currentTime,
+    duration,
   } = usePlayer();
 
   if (!currentSong) return null;
@@ -30,6 +41,30 @@ function Player() {
       </p>
 
       <p>{currentSong.artist}</p>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "15px",
+          marginBottom: "8px",
+          fontSize: "14px",
+        }}
+      >
+        <span>{formatTime(currentTime)}</span>
+
+        <span>{formatTime(duration)}</span>
+      </div>
+
+      <progress
+        value={currentTime}
+        max={duration || 0}
+        style={{
+          width: "100%",
+          height: "8px",
+          marginBottom: "15px",
+        }}
+      />
 
       <button
         onClick={() => {

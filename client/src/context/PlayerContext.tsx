@@ -3,6 +3,7 @@ import {
   useContext,
   useRef,
   useState,
+  useEffect,
   type ReactNode,
 } from "react";
 
@@ -12,6 +13,9 @@ import type { Song } from "../types/song";
 interface PlayerContextType {
   currentSong: Song | null;
   isPlaying: boolean;
+
+  currentTime: number;
+  duration: number;
 
   playSong: (song: Song) => Promise<void>;
   pauseSong: () => void;
@@ -29,10 +33,38 @@ export function PlayerProvider({
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const [currentSong, setCurrentSong] =
-    useState<Song | null>(null);
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    const updateTime = () => {
+      setCurrentTime(audio.currentTime);
+      setDuration(audio.duration || 0);
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+    };
+
+    audio.addEventListener("timeupdate", updateTime);
+    audio.addEventListener("loadedmetadata", updateTime);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.removeEventListener("loadedmetadata", updateTime);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, []);
 
   async function playSong(song: Song) {
     try {
@@ -56,6 +88,7 @@ export function PlayerProvider({
     if (!audioRef.current) return;
 
     audioRef.current.pause();
+
     setIsPlaying(false);
   }
 
@@ -63,6 +96,7 @@ export function PlayerProvider({
     if (!audioRef.current) return;
 
     audioRef.current.play();
+
     setIsPlaying(true);
   }
 
@@ -71,6 +105,8 @@ export function PlayerProvider({
       value={{
         currentSong,
         isPlaying,
+        currentTime,
+        duration,
         playSong,
         pauseSong,
         resumeSong,
@@ -88,9 +124,7 @@ export function usePlayer() {
   const context = useContext(PlayerContext);
 
   if (!context) {
-    throw new Error(
-      "usePlayer must be used inside PlayerProvider"
-    );
+    throw new Error("usePlayer must be used inside PlayerProvider");
   }
 
   return context;
