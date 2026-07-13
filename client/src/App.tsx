@@ -1,29 +1,13 @@
-import { useEffect, useState } from "react";
+import SearchPage from "./pages/SearchPage";
+import Player from "./components/Player";
+import { PlayerProvider } from "./context/PlayerContext";
 
 function App() {
-  const [message, setMessage] = useState("Loading...");
-
-  useEffect(() => {
-    fetch("http://localhost:5000/")
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch(() => setMessage("Backend Offline"));
-  }, []);
-
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "grid",
-        placeItems: "center",
-        fontFamily: "Arial",
-        background: "#111",
-        color: "white",
-        fontSize: "2rem",
-      }}
-    >
-      {message}
-    </div>
+    <PlayerProvider>
+      <SearchPage />
+      <Player />
+    </PlayerProvider>
   );
 }
 
