@@ -16,3 +16,45 @@ model RecentSong {
   duration   String
   playedAt   DateTime @updatedAt
 }
+
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  youtubeId  String   @unique
+  title      String
+  artist     String
+  thumbnail  String
+  duration   String
+  createdAt  DateTime @default(now())
+}
+
+model Folder {
+  id         Int        @id @default(autoincrement())
+  name       String
+  createdAt  DateTime   @default(now())
+
+  playlists  Playlist[]
+}
+
+model Playlist {
+  id         Int             @id @default(autoincrement())
+  name       String
+  createdAt  DateTime        @default(now())
+
+  folderId   Int
+  folder     Folder          @relation(fields: [folderId], references: [id])
+
+  songs      PlaylistSong[]
+}
+
+model PlaylistSong {
+  id          Int       @id @default(autoincrement())
+
+  playlistId  Int
+  playlist    Playlist  @relation(fields: [playlistId], references: [id])
+
+  youtubeId   String
+  title       String
+  artist      String
+  thumbnail   String
+  duration    String
+}

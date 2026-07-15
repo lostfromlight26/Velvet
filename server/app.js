@@ -4,12 +4,14 @@ import cors from "cors";
 import searchRoutes from "./routes/searchRoutes.js";
 import streamRoutes from "./routes/streamRoutes.js";
 import recentRoutes from "./routes/recentRoutes.js";
+import favoriteRoutes from "./routes/favoriteRoutes.js";
+import folderRoutes from "./routes/folderRoutes.js";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use("/api/recent", recentRoutes);
+
 
 app.get("/", (req, res) => {
   res.json({
@@ -19,5 +21,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/search", searchRoutes);
 app.use("/api/stream", streamRoutes);
+app.use("/api/recent", recentRoutes);
+app.use("/api/favorites", favoriteRoutes);
+app.use("/api/folders", folderRoutes);
 
 export default app;
