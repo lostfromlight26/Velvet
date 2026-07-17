@@ -1,5 +1,10 @@
 import { usePlayerStore } from "../store/playerStore";
 
+import PlayerInfo from "./player/PlayerInfo";
+import PlayerControls from "./player/PlayerControls";
+import PlayerProgress from "./player/PlayerProgress";
+import VolumeControl from "./player/VolumeControl";
+
 function formatTime(time: number) {
   if (!time || isNaN(time)) return "0:00";
 
@@ -25,82 +30,51 @@ function Player() {
   if (!currentSong) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: "20px",
-        background: "#222",
-        color: "white",
-        borderTop: "1px solid #444",
-      }}
-    >
-      <h3>🎵 Now Playing</h3>
-
-      <p>
-        <strong>{currentSong.title}</strong>
-      </p>
-
-      <p>{currentSong.artist}</p>
-
+    <div className="fixed bottom-5 left-1/2 z-50 w-[96%] max-w-7xl -translate-x-1/2">
       <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginTop: "15px",
-          marginBottom: "8px",
-        }}
+        className="
+          rounded-3xl
+          border
+          border-white/10
+          bg-white/5
+          backdrop-blur-2xl
+          shadow-[0_0_40px_rgba(168,85,247,0.18)]
+          px-8
+          py-5
+        "
       >
-        <span>{formatTime(currentTime)}</span>
-        <span>{formatTime(duration)}</span>
-      </div>
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          {/* Left */}
+          <PlayerInfo
+            thumbnail={currentSong.thumbnail}
+            title={currentSong.title}
+            artist={currentSong.artist}
+          />
 
-      <input
-        type="range"
-        min={0}
-        max={duration || 0}
-        value={currentTime}
-        onChange={(e) => seekTo(Number(e.target.value))}
-        style={{
-          width: "100%",
-        }}
-      />
+          {/* Center */}
+          <div className="flex flex-1 flex-col items-center gap-4 px-4">
+            <PlayerControls
+              isPlaying={isPlaying}
+              pauseSong={pauseSong}
+              resumeSong={resumeSong}
+            />
 
-      <div
-        style={{
-          marginTop: "15px",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-        }}
-      >
-        <button
-          onClick={() => {
-            if (isPlaying) {
-              pauseSong();
-            } else {
-              resumeSong();
-            }
-          }}
-        >
-          {isPlaying ? "⏸ Pause" : "▶ Resume"}
-        </button>
+            <div className="w-full max-w-xl">
+              <PlayerProgress
+                currentTime={currentTime}
+                duration={duration}
+                seekTo={seekTo}
+                formatTime={formatTime}
+              />
+            </div>
+          </div>
 
-        <span>🔊</span>
-
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={(e) => setVolume(Number(e.target.value))}
-          style={{
-            width: "150px",
-          }}
-        />
+          {/* Right */}
+          <VolumeControl
+            volume={volume}
+            setVolume={setVolume}
+          />
+        </div>
       </div>
     </div>
   );

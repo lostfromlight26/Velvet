@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
 import SongList from "../components/SongList";
 
+import SectionHeader from "../components/home/SectionHeader";
+import RecentlyPlayed from "../components/home/RecentlyPlayed";
+
 import {
   searchSongs,
   getRecentSongs,
@@ -19,7 +22,6 @@ function SearchPage() {
 
   const recentSongs = usePlayerStore((state) => state.recentSongs);
   const setRecentSongs = usePlayerStore((state) => state.setRecentSongs);
-  const playSong = usePlayerStore((state) => state.playSong);
 
   useEffect(() => {
     async function loadRecentSongs() {
@@ -61,14 +63,7 @@ function SearchPage() {
   }
 
   return (
-    <div
-      style={{
-        padding: "40px",
-        paddingBottom: "170px",
-      }}
-    >
-      <h1>🎵 Velvet</h1>
-
+    <div className="pb-44">
       <SearchBar
         query={query}
         setQuery={setQuery}
@@ -77,34 +72,24 @@ function SearchPage() {
       />
 
       {recentSongs.length > 0 && (
-        <>
-          <h2>🕒 Recently Played</h2>
+        <section className="mb-12">
+          <SectionHeader
+            title="Recently Played"
+            subtitle="Jump back into your favorites"
+          />
 
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              overflowX: "auto",
-              marginBottom: "30px",
-            }}
-          >
-            {recentSongs.map((song) => (
-              <button
-                key={song.id}
-                onClick={() => playSong(song)}
-                style={{
-                  padding: "10px",
-                  cursor: "pointer",
-                }}
-              >
-                🎵 {song.title}
-              </button>
-            ))}
-          </div>
-        </>
+          <RecentlyPlayed />
+        </section>
       )}
 
-      <SongList songs={songs} />
+      <section>
+        <SectionHeader
+          title="Recommended for You"
+          subtitle="Discover your next favorite track"
+        />
+
+        <SongList songs={songs} />
+      </section>
     </div>
   );
 }
