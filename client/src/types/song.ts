@@ -1,7 +1,9 @@
 export interface Song {
-    id: string;
-    title: string;
-    artist: string;
-    duration: string;
-    thumbnail: string;
+  id: string;
+  title: string;
+  artist: string;
+  duration: string;
+  thumbnail: string;
+
+  isFavorite?: boolean;
 }

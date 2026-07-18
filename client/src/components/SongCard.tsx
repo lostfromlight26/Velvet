@@ -1,6 +1,9 @@
-import { Play } from "lucide-react";
+import { Heart, Play } from "lucide-react";
+
 import type { Song } from "../types/song";
+
 import { usePlayerStore } from "../store/playerStore";
+import { useFavoriteStore } from "../store/favoriteStore";
 
 interface SongCardProps {
   song: Song;
@@ -10,6 +13,14 @@ function SongCard({ song }: SongCardProps) {
   const playSong = usePlayerStore((state) => state.playSong);
   const currentSong = usePlayerStore((state) => state.currentSong);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
+
+  const toggleFavorite = useFavoriteStore(
+    (state) => state.toggleFavorite
+  );
+
+  const isFavorite = useFavoriteStore((state) =>
+    state.isFavorite(song.id)
+  );
 
   const currentlyPlaying =
     currentSong?.id === song.id && isPlaying;
@@ -52,32 +63,33 @@ function SongCard({ song }: SongCardProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => toggleFavorite(song)}
+          className="text-zinc-400 transition hover:text-red-500"
+        >
+          <Heart
+            size={22}
+            fill={isFavorite ? "currentColor" : "none"}
+          />
+        </button>
+
         <span className="text-sm text-zinc-400">
           {song.duration}
         </span>
 
         <button
           onClick={() => playSong(song)}
-          className={`
-            flex
-            h-11
-            w-11
-            items-center
-            justify-center
-            rounded-full
-            transition-all
-            ${
-              currentlyPlaying
-                ? "bg-violet-500"
-                : "bg-zinc-800 group-hover:bg-violet-500"
-            }
-          `}
+          className={`flex h-11 w-11 items-center justify-center rounded-full transition-all ${
+            currentlyPlaying
+              ? "bg-violet-500"
+              : "bg-zinc-800 group-hover:bg-violet-500"
+          }`}
         >
           <Play
             size={18}
             fill="white"
-            className="text-white ml-0.5"
+            className="ml-0.5 text-white"
           />
         </button>
       </div>
