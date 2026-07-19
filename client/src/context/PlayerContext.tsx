@@ -17,11 +17,18 @@ interface PlayerContextType {
   currentTime: number;
   duration: number;
 
+  queue: Song[];
+  currentIndex: number;
+
   playSong: (song: Song) => Promise<void>;
   pauseSong: () => void;
   resumeSong: () => void;
 
   seekTo: (time: number) => void;
+
+  setQueue: (songs: Song[]) => void;
+  playNext: () => Promise<void>;
+  playPrevious: () => Promise<void>;
 
   audioRef: React.RefObject<HTMLAudioElement | null>;
 }
@@ -36,12 +43,14 @@ export function PlayerProvider({
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
-
   const [isPlaying, setIsPlaying] = useState(false);
 
   const [currentTime, setCurrentTime] = useState(0);
-
   const [duration, setDuration] = useState(0);
+
+  // ===== Queue =====
+  const [queue, setQueueState] = useState<Song[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -53,8 +62,12 @@ export function PlayerProvider({
       setDuration(audio.duration || 0);
     };
 
-    const handleEnded = () => {
-      setIsPlaying(false);
+    const handleEnded = async () => {
+      if (currentIndex < queue.length - 1) {
+        await playNext();
+      } else {
+        setIsPlaying(false);
+      }
     };
 
     audio.addEventListener("timeupdate", updateTime);
@@ -66,7 +79,7 @@ export function PlayerProvider({
       audio.removeEventListener("loadedmetadata", updateTime);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, []);
+  }, [currentIndex, queue]);
 
   async function playSong(song: Song) {
     try {
@@ -80,6 +93,13 @@ export function PlayerProvider({
 
       setCurrentSong(song);
       setIsPlaying(true);
+
+      // Update current index if song is inside queue
+      const index = queue.findIndex((s) => s.id === song.id);
+
+      if (index !== -1) {
+        setCurrentIndex(index);
+      }
     } catch (error) {
       console.error(error);
       alert("Unable to play song");
@@ -90,7 +110,6 @@ export function PlayerProvider({
     if (!audioRef.current) return;
 
     audioRef.current.pause();
-
     setIsPlaying(false);
   }
 
@@ -98,7 +117,6 @@ export function PlayerProvider({
     if (!audioRef.current) return;
 
     audioRef.current.play();
-
     setIsPlaying(true);
   }
 
@@ -109,17 +127,52 @@ export function PlayerProvider({
     setCurrentTime(time);
   }
 
+  function setQueue(songs: Song[]) {
+    setQueueState(songs);
+  }
+
+  async function playNext() {
+    if (currentIndex >= queue.length - 1) return;
+
+    const nextIndex = currentIndex + 1;
+
+    setCurrentIndex(nextIndex);
+
+    await playSong(queue[nextIndex]);
+  }
+
+  async function playPrevious() {
+    if (currentIndex <= 0) return;
+
+    const prevIndex = currentIndex - 1;
+
+    setCurrentIndex(prevIndex);
+
+    await playSong(queue[prevIndex]);
+  }
+
   return (
     <PlayerContext.Provider
       value={{
         currentSong,
         isPlaying,
+
         currentTime,
         duration,
+
+        queue,
+        currentIndex,
+
         playSong,
         pauseSong,
         resumeSong,
+
         seekTo,
+
+        setQueue,
+        playNext,
+        playPrevious,
+
         audioRef,
       }}
     >
