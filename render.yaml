@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: velvet-backend
+    env: docker
+    dockerContext: ./server
+    dockerfilePath: ./server/Dockerfile
+    region: oregon
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        value: https://velvet-22606.web.app
