@@ -26,6 +26,22 @@ export async function apiPost(endpoint: string, body: unknown) {
   return response.json();
 }
 
+export async function apiPut(endpoint: string, body: unknown) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error("API request failed");
+  }
+
+  return response.json();
+}
+
 export async function apiDelete(endpoint: string) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     method: "DELETE",

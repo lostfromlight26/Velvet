@@ -1,6 +1,14 @@
 import { History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+import RecentlyPlayed from "../home/RecentlyPlayed";
+import EmptyState from "../ui/EmptyState";
+import { usePlayerStore } from "../../store/playerStore";
 
 function RecentSection() {
+  const navigate = useNavigate();
+  const recentSongs = usePlayerStore((state) => state.recentSongs);
+
   return (
     <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
       <div className="flex items-center gap-3">
@@ -14,13 +22,23 @@ function RecentSection() {
           </h2>
 
           <p className="text-sm text-zinc-400">
-            Continue listening.
+            Continue listening to your history.
           </p>
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-dashed border-zinc-700 p-8 text-center text-zinc-500">
-        Your recently played songs will appear here.
+      <div className="mt-6">
+        {recentSongs.length === 0 ? (
+          <EmptyState
+            icon={History}
+            title="No Recent Activity"
+            description="Songs you listen to will automatically show up here."
+            actionLabel="Start Listening"
+            onAction={() => navigate("/search")}
+          />
+        ) : (
+          <RecentlyPlayed />
+        )}
       </div>
     </div>
   );

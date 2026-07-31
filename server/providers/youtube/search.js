@@ -1,16 +1,18 @@
 import { Innertube } from "youtubei.js";
 
-console.time("Innertube Init");
+let youtubeInstance = null;
 
-const youtube = await Innertube.create();
-
-console.timeEnd("Innertube Init");
+async function getYoutube() {
+  if (!youtubeInstance) {
+    youtubeInstance = await Innertube.create();
+  }
+  return youtubeInstance;
+}
 
 const searchCache = new Map();
 
 export async function searchSongs(query) {
   const key = query.trim().toLowerCase();
-
   if (!key) return [];
 
   if (searchCache.has(key)) {
@@ -18,37 +20,32 @@ export async function searchSongs(query) {
     return searchCache.get(key);
   }
 
-  console.time(`Search ${key}`);
+  try {
+    const yt = await getYoutube();
+    const search = await yt.search(query, { type: "video" });
 
-  console.time("YT Search");
+    const songs = (search.results || [])
+      .filter((item) => item.type === "Video")
+      .slice(0, 12)
+      .map((video) => ({
+        id: video.id,
+        title: video.title?.text ?? "Unknown Title",
+        artist:
+          video.author?.name ??
+          video.author?.text ??
+          "Unknown Artist",
+        duration:
+          video.duration?.text ??
+          video.duration?.simple_text ??
+          "--:--",
+        thumbnail:
+          video.thumbnails?.[video.thumbnails.length - 1]?.url ?? "",
+      }));
 
-const search = await youtube.search(query, {
-  type: "video",
-});
-
-console.timeEnd("YT Search");
-
-  const songs = search.results
-    .filter((item) => item.type === "Video")
-    .slice(0, 10)
-    .map((video) => ({
-      id: video.id,
-      title: video.title?.text ?? "Unknown Title",
-      artist:
-        video.author?.name ??
-        video.author?.text ??
-        "Unknown Artist",
-      duration:
-        video.duration?.text ??
-        video.duration?.simple_text ??
-        "--:--",
-      thumbnail:
-        video.thumbnails?.[video.thumbnails.length - 1]?.url ?? "",
-    }));
-
-  searchCache.set(key, songs);
-
-  console.timeEnd(`Search ${key}`);
-
-  return songs;
+    searchCache.set(key, songs);
+    return songs;
+  } catch (err) {
+    console.error("Innertube search error:", err);
+    return [];
+  }
 }

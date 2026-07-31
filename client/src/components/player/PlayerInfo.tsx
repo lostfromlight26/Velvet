@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 interface PlayerInfoProps {
   thumbnail: string;
   title: string;
@@ -30,4 +32,4 @@ function PlayerInfo({
   );
 }
 
-export default PlayerInfo;
+export default memo(PlayerInfo);

@@ -1,34 +1,37 @@
-import { Volume2 } from "lucide-react";
+import { memo } from "react";
+import { VolumeX, Volume2 } from "lucide-react";
+import ElasticSlider from "../ui/ElasticSlider";
 
 interface VolumeControlProps {
   volume: number;
   setVolume: (volume: number) => void;
 }
 
-function VolumeControl({
-  volume,
-  setVolume,
-}: VolumeControlProps) {
+function VolumeControl({ volume, setVolume }: VolumeControlProps) {
   return (
-    <div className="hidden lg:flex items-center gap-3 w-48">
-      <Volume2
-        size={20}
-        className="text-zinc-400"
-      />
-
-      <input
-        type="range"
-        min={0}
-        max={1}
-        step={0.01}
-        value={volume}
-        onChange={(e) =>
-          setVolume(Number(e.target.value))
+    <div className="hidden lg:flex items-center gap-2">
+      <ElasticSlider
+        defaultValue={Math.round(volume * 100)}
+        startingValue={0}
+        maxValue={100}
+        leftIcon={
+          <VolumeX
+            size={16}
+            className="text-zinc-400 hover:text-white transition cursor-pointer"
+            onClick={() => setVolume(0)}
+          />
         }
-        className="h-1 w-full accent-violet-500"
+        rightIcon={
+          <Volume2
+            size={16}
+            className="text-violet-400 hover:text-violet-300 transition cursor-pointer"
+            onClick={() => setVolume(1)}
+          />
+        }
+        onChange={(val) => setVolume(val / 100)}
       />
     </div>
   );
 }
 
-export default VolumeControl;
+export default memo(VolumeControl);

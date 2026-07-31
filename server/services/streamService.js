@@ -1,15 +1,5 @@
-import ytdlp from "yt-dlp-exec";
+import { getAudioStream as ytGetAudioStream } from "../providers/youtube/stream.js";
 
 export async function getAudioStream(videoId) {
-  const result = await ytdlp(
-    `https://www.youtube.com/watch?v=${videoId}`,
-    {
-      getUrl: true,
-      format: "bestaudio",
-      noWarnings: true,
-      noCallHome: true,
-    }
-  );
-
-  return result.trim();
+  return await ytGetAudioStream(videoId);
 }

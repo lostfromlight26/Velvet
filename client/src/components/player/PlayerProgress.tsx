@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 interface PlayerProgressProps {
   currentTime: number;
   duration: number;
@@ -25,7 +27,7 @@ function PlayerProgress({
         onChange={(e) =>
           seekTo(Number(e.target.value))
         }
-        className="h-1 w-full accent-violet-500"
+        className="h-1 w-full accent-violet-500 cursor-pointer"
       />
 
       <span className="text-xs text-zinc-400 w-10 text-right">
@@ -35,4 +37,4 @@ function PlayerProgress({
   );
 }
 
-export default PlayerProgress;
+export default memo(PlayerProgress);

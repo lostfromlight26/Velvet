@@ -13,7 +13,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 app.get("/", (req, res) => {
   res.json({
     message: "🎵 Velvet API is running",
@@ -24,6 +23,7 @@ app.use("/api/search", searchRoutes);
 app.use("/api/stream", streamRoutes);
 
 app.use("/api/recent", recentRoutes);
+app.use("/api/recents", recentRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/folders", folderRoutes);
 app.use("/api/playlists", playlistRoutes);
