@@ -1,6 +1,7 @@
-import { useState, memo } from "react";
+import { useState, memo, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Heart, Play, Plus, Trash2, Check, ListPlus, CornerDownRight, Share2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import type { Song } from "../types/song";
 
@@ -16,6 +17,7 @@ interface SongCardProps {
 }
 
 function SongCard({ song, onRemove, onPlay }: SongCardProps) {
+  const navigate = useNavigate();
   const playSong = usePlayerStore((state) => state.playSong);
   const currentSongId = usePlayerStore((state) => state.currentSong?.id);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
@@ -35,7 +37,27 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
 
+  const menuRef = useRef<HTMLDivElement>(null);
   const currentlyPlaying = currentSongId === song.id && isPlaying;
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    if (!showOptionsMenu) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowOptionsMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [showOptionsMenu]);
 
   const handleOpenMenu = async () => {
     if (!showOptionsMenu) {
@@ -104,7 +126,7 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
   return (
     <motion.div
       whileHover={{ y: -1, transition: { duration: 0.15 } }}
-      className="
+      className={`
         group
         relative
         mb-4
@@ -121,7 +143,8 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
         duration-300
         hover:border-violet-500
         hover:bg-zinc-800
-      "
+        ${showOptionsMenu ? "z-50" : "z-0"}
+      `}
     >
       <div className="flex items-center gap-4 min-w-0">
         <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl">
@@ -163,61 +186,90 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
           </button>
 
           {showOptionsMenu && (
-            <div className="absolute right-0 top-10 z-50 w-60 rounded-2xl border border-white/10 bg-zinc-900/95 p-2 shadow-2xl backdrop-blur-xl">
-              {addedMessage ? (
-                <div className="flex items-center gap-2 p-3 text-sm font-medium text-violet-300">
-                  <Check size={16} />
-                  {addedMessage}
-                </div>
-              ) : (
-                <>
-                  <div className="border-b border-white/10 pb-2 mb-2">
-                    <button
-                      onClick={handlePlayNextInQueue}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white"
-                    >
-                      <CornerDownRight size={16} className="text-violet-400" />
-                      Play Next
-                    </button>
-                    <button
-                      onClick={handleAddToQueue}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white"
-                    >
-                      <ListPlus size={16} className="text-violet-400" />
-                      Add to Queue
-                    </button>
-                    <button
-                      onClick={handleShare}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white"
-                    >
-                      <Share2 size={16} className="text-violet-400" />
-                      Share Track
-                    </button>
-                  </div>
+            <>
+              {/* Fullscreen invisible backdrop for instant outside clicks */}
+              <div
+                className="fixed inset-0 z-40"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowOptionsMenu(false);
+                }}
+              />
 
-                  <p className="px-3 py-1 text-xs font-semibold uppercase text-zinc-400">
-                    Add to Playlist
-                  </p>
-                  <div className="max-h-40 overflow-y-auto">
-                    {playlists.length === 0 ? (
-                      <p className="px-3 py-2 text-xs text-zinc-500">
-                        No playlists found.
-                      </p>
-                    ) : (
-                      playlists.map((pl) => (
-                        <button
-                          key={pl.id}
-                          onClick={() => handleAddToPlaylist(pl.id)}
-                          className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white"
-                        >
-                          <span className="truncate">{pl.name}</span>
-                        </button>
-                      ))
-                    )}
+              <div
+                ref={menuRef}
+                className="absolute right-0 top-12 z-50 w-64 rounded-2xl border border-white/15 bg-zinc-900/95 p-3 shadow-[0_10px_38px_rgba(0,0,0,0.8)] backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150"
+              >
+                {addedMessage ? (
+                  <div className="flex items-center gap-2 p-3 text-sm font-medium text-violet-300">
+                    <Check size={16} />
+                    {addedMessage}
                   </div>
-                </>
-              )}
-            </div>
+                ) : (
+                  <>
+                    <div className="border-b border-white/10 pb-2 mb-2 space-y-1">
+                      <button
+                        onClick={handlePlayNextInQueue}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white transition"
+                      >
+                        <CornerDownRight size={16} className="text-violet-400" />
+                        Play Next
+                      </button>
+                      <button
+                        onClick={handleAddToQueue}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white transition"
+                      >
+                        <ListPlus size={16} className="text-violet-400" />
+                        Add to Queue
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white transition"
+                      >
+                        <Share2 size={16} className="text-violet-400" />
+                        Share Track
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between px-3 py-1 mb-1">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                        Add to Playlist
+                      </p>
+                      <button
+                        onClick={() => {
+                          setShowOptionsMenu(false);
+                          navigate("/playlists");
+                        }}
+                        className="text-[11px] font-semibold text-violet-400 hover:text-violet-300 hover:underline flex items-center gap-0.5"
+                      >
+                        <Plus size={12} /> Create
+                      </button>
+                    </div>
+
+                    <div className="max-h-44 overflow-y-auto pr-1 space-y-1 scrollbar-thin scrollbar-thumb-zinc-700">
+                      {playlists.length === 0 ? (
+                        <p className="px-3 py-2 text-xs text-zinc-500">
+                          No playlists found. Create one in Library!
+                        </p>
+                      ) : (
+                        playlists.map((pl) => (
+                          <button
+                            key={pl.id}
+                            onClick={() => handleAddToPlaylist(pl.id)}
+                            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white transition"
+                          >
+                            <span className="truncate">{pl.name}</span>
+                            <span className="text-[10px] text-zinc-500 ml-2">
+                              {pl.songs?.length || 0}
+                            </span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
           )}
         </div>
 

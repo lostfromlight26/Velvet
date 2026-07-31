@@ -21,6 +21,9 @@ Thumbs.db
 # Vite
 client/dist/
 
+# Firebase
+.firebase/
+
 # Misc
 coverage/
 mcp.json
