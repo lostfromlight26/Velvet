@@ -116,13 +116,50 @@ function SearchPage() {
     },
   ];
 
+  const [mobileSearchInput, setMobileSearchInput] = useState(queryParam);
+
+  const handleMobileSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchInput.trim()) {
+      setSearchParams({ q: mobileSearchInput.trim() });
+    } else {
+      setSearchParams({});
+    }
+  };
+
   return (
-    <div className="pb-44">
+    <div className="pb-16 md:pb-24">
+      {/* Mobile-Only Search Bar */}
+      <div className="block md:hidden mb-6">
+        <form onSubmit={handleMobileSearchSubmit} className="relative w-full">
+          <SearchIcon size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <input
+            type="text"
+            placeholder="Search songs, artists, or albums..."
+            value={mobileSearchInput}
+            onChange={(e) => setMobileSearchInput(e.target.value)}
+            className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-10 py-3 text-sm text-white placeholder-zinc-500 focus:border-violet-500 focus:outline-none"
+          />
+          {mobileSearchInput && (
+            <button
+              type="button"
+              onClick={() => {
+                setMobileSearchInput("");
+                setSearchParams({});
+              }}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </form>
+      </div>
+
       {/* Top Quick Access Bento Grid */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
               <Sparkles size={20} className="text-violet-400" />
               Quick Access
             </h2>

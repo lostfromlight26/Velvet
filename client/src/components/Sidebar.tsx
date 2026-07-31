@@ -372,7 +372,7 @@ function Sidebar() {
             return (
               <NavLink
                 key={pl.id}
-                to={`/playlists?id=${pl.id}`}
+                to="/playlists"
                 className={({ isActive }) =>
                   `block transition-all ${isActive ? "opacity-100 ring-1 ring-violet-500/50 rounded-2xl" : "opacity-90 hover:opacity-100"}`
                 }

@@ -1,7 +1,6 @@
-import { useState, memo, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { motion } from "framer-motion";
 import { Heart, Play, Plus, Trash2, Check, ListPlus, CornerDownRight, Share2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 import type { Song } from "../types/song";
 
@@ -17,7 +16,6 @@ interface SongCardProps {
 }
 
 function SongCard({ song, onRemove, onPlay }: SongCardProps) {
-  const navigate = useNavigate();
   const playSong = usePlayerStore((state) => state.playSong);
   const currentSongId = usePlayerStore((state) => state.currentSong?.id);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
@@ -40,26 +38,22 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const currentlyPlaying = currentSongId === song.id && isPlaying;
 
-  // Handle click outside to close dropdown
   useEffect(() => {
-    if (!showOptionsMenu) return;
-
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowOptionsMenu(false);
       }
     };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
-
+    if (showOptionsMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [showOptionsMenu]);
 
-  const handleOpenMenu = async () => {
+  const handleOpenMenu = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!showOptionsMenu) {
       await loadPlaylists();
     }
@@ -129,25 +123,27 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
       className={`
         group
         relative
-        mb-4
+        ${showOptionsMenu ? "z-50" : "z-0"}
+        mb-3
         flex
         items-center
         justify-between
         rounded-2xl
         border
         border-zinc-800
-        bg-zinc-900
-        px-4
-        py-3
+        bg-zinc-900/90
+        px-3
+        py-2.5
+        sm:px-4
+        sm:py-3
         transition-all
         duration-300
-        hover:border-violet-500
-        hover:bg-zinc-800
-        ${showOptionsMenu ? "z-50" : "z-0"}
+        hover:border-violet-500/60
+        hover:bg-zinc-800/90
       `}
     >
-      <div className="flex items-center gap-4 min-w-0">
-        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl">
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 mr-2">
+        <div className="relative h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-xl bg-zinc-800">
           <img
             src={song.thumbnail}
             alt={song.title}
@@ -164,112 +160,83 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
           )}
         </div>
 
-        <div className="min-w-0">
-          <h3 className="truncate font-semibold text-white">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-semibold text-white text-xs sm:text-base">
             {song.title}
           </h3>
 
-          <p className="mt-1 truncate text-sm text-zinc-400">
+          <p className="mt-0.5 sm:mt-1 truncate text-[11px] sm:text-sm text-zinc-400">
             {song.artist}
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-3 flex-shrink-0">
-        <div className="relative">
+      <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+        <div ref={menuRef} className="relative">
           <button
             onClick={handleOpenMenu}
             title="Options & Playlists"
-            className="rounded-lg p-2 text-zinc-400 transition hover:bg-white/10 hover:text-white"
+            className="rounded-lg p-1.5 sm:p-2 text-zinc-400 transition hover:bg-white/10 hover:text-white"
           >
-            <Plus size={20} />
+            <Plus size={18} className="sm:w-5 sm:h-5" />
           </button>
 
           {showOptionsMenu && (
-            <>
-              {/* Fullscreen invisible backdrop for instant outside clicks */}
-              <div
-                className="fixed inset-0 z-40"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowOptionsMenu(false);
-                }}
-              />
-
-              <div
-                ref={menuRef}
-                className="absolute right-0 top-12 z-50 w-64 rounded-2xl border border-white/15 bg-zinc-900/95 p-3 shadow-[0_10px_38px_rgba(0,0,0,0.8)] backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150"
-              >
-                {addedMessage ? (
-                  <div className="flex items-center gap-2 p-3 text-sm font-medium text-violet-300">
-                    <Check size={16} />
-                    {addedMessage}
+            <div className="absolute right-0 top-10 z-50 w-56 sm:w-60 rounded-2xl border border-white/10 bg-zinc-900/95 p-2 shadow-2xl backdrop-blur-xl">
+              {addedMessage ? (
+                <div className="flex items-center gap-2 p-3 text-sm font-medium text-violet-300">
+                  <Check size={16} />
+                  {addedMessage}
+                </div>
+              ) : (
+                <>
+                  <div className="border-b border-white/10 pb-2 mb-2">
+                    <button
+                      onClick={handlePlayNextInQueue}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs sm:text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white"
+                    >
+                      <CornerDownRight size={16} className="text-violet-400" />
+                      Play Next
+                    </button>
+                    <button
+                      onClick={handleAddToQueue}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs sm:text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white"
+                    >
+                      <ListPlus size={16} className="text-violet-400" />
+                      Add to Queue
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs sm:text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white"
+                    >
+                      <Share2 size={16} className="text-violet-400" />
+                      Share Track
+                    </button>
                   </div>
-                ) : (
-                  <>
-                    <div className="border-b border-white/10 pb-2 mb-2 space-y-1">
-                      <button
-                        onClick={handlePlayNextInQueue}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white transition"
-                      >
-                        <CornerDownRight size={16} className="text-violet-400" />
-                        Play Next
-                      </button>
-                      <button
-                        onClick={handleAddToQueue}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white transition"
-                      >
-                        <ListPlus size={16} className="text-violet-400" />
-                        Add to Queue
-                      </button>
-                      <button
-                        onClick={handleShare}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white transition"
-                      >
-                        <Share2 size={16} className="text-violet-400" />
-                        Share Track
-                      </button>
-                    </div>
 
-                    <div className="flex items-center justify-between px-3 py-1 mb-1">
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                        Add to Playlist
+                  <p className="px-3 py-1 text-[10px] sm:text-xs font-semibold uppercase text-zinc-400">
+                    Add to Playlist
+                  </p>
+                  <div className="max-h-40 overflow-y-auto">
+                    {playlists.length === 0 ? (
+                      <p className="px-3 py-2 text-xs text-zinc-500">
+                        No playlists found.
                       </p>
-                      <button
-                        onClick={() => {
-                          setShowOptionsMenu(false);
-                          navigate("/playlists");
-                        }}
-                        className="text-[11px] font-semibold text-violet-400 hover:text-violet-300 hover:underline flex items-center gap-0.5"
-                      >
-                        <Plus size={12} /> Create
-                      </button>
-                    </div>
-
-                    <div className="max-h-44 overflow-y-auto pr-1 space-y-1 scrollbar-thin scrollbar-thumb-zinc-700">
-                      {playlists.length === 0 ? (
-                        <p className="px-3 py-2 text-xs text-zinc-500">
-                          No playlists found. Create one in Library!
-                        </p>
-                      ) : (
-                        playlists.map((pl) => (
-                          <button
-                            key={pl.id}
-                            onClick={() => handleAddToPlaylist(pl.id)}
-                            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white transition"
-                          >
-                            <span className="truncate">{pl.name}</span>
-                            <span className="text-[10px] text-zinc-500 ml-2">
-                              {pl.songs?.length || 0}
-                            </span>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
+                    ) : (
+                      playlists.map((pl) => (
+                        <button
+                          key={pl.id}
+                          onClick={() => handleAddToPlaylist(pl.id)}
+                          className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs sm:text-sm text-zinc-200 hover:bg-violet-500/20 hover:text-white"
+                        >
+                          <span className="truncate">{pl.name}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
 
@@ -277,9 +244,9 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
           <button
             onClick={() => onRemove(song.id)}
             title="Remove from Playlist"
-            className="rounded-lg p-2 text-zinc-400 transition hover:bg-red-500/20 hover:text-red-400"
+            className="rounded-lg p-1.5 sm:p-2 text-zinc-400 transition hover:bg-red-500/20 hover:text-red-400"
           >
-            <Trash2 size={20} />
+            <Trash2 size={18} className="sm:w-5 sm:h-5" />
           </button>
         )}
 
@@ -288,27 +255,28 @@ function SongCard({ song, onRemove, onPlay }: SongCardProps) {
           className="text-zinc-400 transition hover:text-red-500 p-1"
         >
           <Heart
-            size={22}
+            size={18}
+            className="sm:w-[22px] sm:h-[22px]"
             fill={isFavorite ? "currentColor" : "none"}
           />
         </button>
 
-        <span className="text-sm text-zinc-400">
+        <span className="hidden sm:inline text-xs sm:text-sm text-zinc-400">
           {song.duration}
         </span>
 
         <button
           onClick={() => (onPlay ? onPlay() : playSong(song))}
-          className={`flex h-11 w-11 items-center justify-center rounded-full transition-all ${
+          className={`flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full transition-all ${
             currentlyPlaying
               ? "bg-violet-500 shadow-[0_0_20px_rgba(168,85,247,0.5)]"
               : "bg-zinc-800 group-hover:bg-violet-500"
           }`}
         >
           <Play
-            size={18}
+            size={16}
             fill="white"
-            className="ml-0.5 text-white"
+            className="ml-0.5 text-white sm:w-[18px] sm:h-[18px]"
           />
         </button>
       </div>

@@ -59,33 +59,57 @@ function Player() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 50, opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="fixed bottom-14 md:bottom-5 left-1/2 md:left-[calc(50%+120px)] z-[60] w-[95%] md:w-[calc(90%-140px)] max-w-6xl -translate-x-1/2"
+          className="fixed bottom-16 md:bottom-5 left-1/2 md:left-[calc(50%+120px)] z-[60] w-[95%] md:w-[calc(90%-140px)] max-w-6xl -translate-x-1/2"
         >
           <div
             className="
-              rounded-3xl
+              rounded-2xl
+              sm:rounded-3xl
               border
               border-white/10
-              bg-zinc-900/90
+              bg-zinc-900/95
               md:bg-white/5
               backdrop-blur-2xl
               shadow-[0_0_40px_rgba(168,85,247,0.18)]
-              px-4
-              py-3
-              sm:px-8
-              sm:py-5
+              px-3
+              py-2.5
+              sm:px-6
+              sm:py-4
             "
           >
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              {/* Left */}
-              <PlayerInfo
-                thumbnail={currentSong.thumbnail}
-                title={currentSong.title}
-                artist={currentSong.artist}
-              />
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+              {/* Top Row / Left: Song Info & Mobile Quick Controls */}
+              <div className="flex items-center justify-between min-w-0 flex-1 gap-2">
+                <PlayerInfo
+                  thumbnail={currentSong.thumbnail}
+                  title={currentSong.title}
+                  artist={currentSong.artist}
+                />
 
-              {/* Center */}
-              <div className="flex flex-1 flex-col items-center gap-4 px-4">
+                <div className="flex items-center gap-1.5 lg:hidden">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={toggleQueuePanel}
+                    title="Playback Queue"
+                    className={`relative rounded-xl p-1.5 transition ${
+                      isQueueOpen
+                        ? "bg-violet-500/20 text-violet-300"
+                        : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    <ListMusic size={18} />
+                    {queueLength > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-violet-500 text-[9px] font-bold text-white">
+                        {queueLength}
+                      </span>
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Center Controls & Progress */}
+              <div className="flex flex-1 flex-col items-center gap-1.5 sm:gap-3 px-1 sm:px-4">
                 <PlayerControls
                   isPlaying={isPlaying}
                   isShuffle={isShuffle}
@@ -110,8 +134,8 @@ function Player() {
                 </div>
               </div>
 
-              {/* Right */}
-              <div className="flex items-center gap-4">
+              {/* Right (Desktop Queue & Volume) */}
+              <div className="hidden lg:flex items-center gap-4">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

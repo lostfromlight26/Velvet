@@ -106,10 +106,10 @@ export default function TopBar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-black/50 px-8 py-3.5 backdrop-blur-2xl transition-all">
+    <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-black/50 px-3 sm:px-8 py-2.5 sm:py-3.5 backdrop-blur-2xl transition-all gap-2">
       {/* Left: Navigation Controls & Home */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1">
+        <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0">
           <button
             onClick={() => navigate(-1)}
             title="Go Back"
@@ -126,26 +126,28 @@ export default function TopBar() {
           </button>
         </div>
 
-        <Magnet strength={0.2}>
-          <button
-            onClick={() => navigate("/")}
-            title="Home"
-            className={`flex h-10 w-10 items-center justify-center rounded-full transition-all ${
-              location.pathname === "/"
-                ? "bg-violet-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                : "bg-zinc-900/80 text-zinc-300 hover:bg-white/10 hover:text-white border border-white/5"
-            }`}
-          >
-            <Home size={19} />
-          </button>
-        </Magnet>
+        <div className="flex-shrink-0">
+          <Magnet strength={0.2}>
+            <button
+              onClick={() => navigate("/")}
+              title="Home"
+              className={`flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full transition-all ${
+                location.pathname === "/"
+                  ? "bg-violet-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                  : "bg-zinc-900/80 text-zinc-300 hover:bg-white/10 hover:text-white border border-white/5"
+              }`}
+            >
+              <Home size={18} className="sm:w-[19px] sm:h-[19px]" />
+            </button>
+          </Magnet>
+        </div>
 
         {/* Search Bar Input */}
-        <form onSubmit={handleSearchSubmit} className="relative ml-2 w-72 sm:w-80 md:w-96">
+        <form onSubmit={handleSearchSubmit} className="relative ml-1 sm:ml-2 flex-1 max-w-[240px] xs:max-w-xs sm:w-80 md:w-96">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
-            placeholder="What do you want to play?"
+            placeholder="Search music..."
             value={query}
             onChange={handleInputChange}
             onFocus={() => {
@@ -157,9 +159,12 @@ export default function TopBar() {
               border
               border-white/10
               bg-zinc-900/80
-              py-2.5
-              pl-10
-              pr-10
+              py-2
+              sm:py-2.5
+              pl-9
+              sm:pl-10
+              pr-9
+              sm:pr-10
               text-xs
               font-medium
               text-white
@@ -187,7 +192,7 @@ export default function TopBar() {
       </div>
 
       {/* Right: Notifications, Settings & User Profile Avatar */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
         {/* Notifications Button */}
         <div ref={notificationRef} className="relative">
           <Magnet strength={0.25}>
@@ -197,11 +202,11 @@ export default function TopBar() {
                 setUnreadNotifications(0);
               }}
               title="Notifications"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/5 bg-zinc-900/80 text-zinc-300 transition hover:bg-white/10 hover:text-white"
+              className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/5 bg-zinc-900/80 text-zinc-300 transition hover:bg-white/10 hover:text-white"
             >
-              <Bell size={19} />
+              <Bell size={18} className="sm:w-[19px] sm:h-[19px]" />
               {unreadNotifications > 0 && (
-                <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-violet-500 text-[10px] font-bold text-white shadow-[0_0_10px_rgba(168,85,247,0.8)]">
+                <span className="absolute right-1 top-1 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-violet-500 text-[9px] sm:text-[10px] font-bold text-white shadow-[0_0_10px_rgba(168,85,247,0.8)]">
                   {unreadNotifications}
                 </span>
               )}
@@ -209,7 +214,7 @@ export default function TopBar() {
           </Magnet>
 
           {showNotifications && (
-            <div className="absolute right-0 top-12 z-50 w-80 rounded-3xl border border-white/10 bg-zinc-900/95 p-4 shadow-2xl backdrop-blur-xl">
+            <div className="absolute right-0 top-12 z-50 w-72 sm:w-80 rounded-3xl border border-white/10 bg-zinc-900/95 p-4 shadow-2xl backdrop-blur-xl">
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <h4 className="font-bold text-sm text-white flex items-center gap-2">
                   <Sparkles size={16} className="text-violet-400" />
@@ -242,13 +247,13 @@ export default function TopBar() {
           <button
             onClick={() => navigate("/settings")}
             title="Settings"
-            className={`flex h-10 w-10 items-center justify-center rounded-full border border-white/5 transition-all ${
+            className={`flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/5 transition-all ${
               location.pathname === "/settings"
                 ? "bg-violet-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
                 : "bg-zinc-900/80 text-zinc-300 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <Settings size={19} />
+            <Settings size={18} className="sm:w-[19px] sm:h-[19px]" />
           </button>
         </Magnet>
 
@@ -257,13 +262,13 @@ export default function TopBar() {
           <Magnet strength={0.3}>
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center gap-2 rounded-full border border-violet-500/30 bg-gradient-to-r from-violet-500/20 to-purple-600/20 p-1 pr-3 transition hover:border-violet-500/60 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+              className="flex items-center gap-2 rounded-full border border-violet-500/30 bg-gradient-to-r from-violet-500/20 to-purple-600/20 p-1 sm:pr-3 transition hover:border-violet-500/60 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]"
             >
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-violet-500 font-bold text-white shadow-md">
-                <User size={16} />
-                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-zinc-900" />
+              <div className="relative flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-violet-500 font-bold text-white shadow-md">
+                <User size={14} className="sm:w-4 sm:h-4" />
+                <span className="absolute bottom-0 right-0 h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-emerald-400 ring-2 ring-zinc-900" />
               </div>
-              <span className="text-xs font-bold text-zinc-200">Velvet User</span>
+              <span className="hidden sm:inline text-xs font-bold text-zinc-200">Velvet User</span>
             </button>
           </Magnet>
 

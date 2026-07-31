@@ -138,19 +138,19 @@ function PlaylistPage() {
     const thumbnails = songs.map((s) => s.thumbnail).filter(Boolean).slice(0, 4);
 
     return (
-      <div className="min-h-full pb-44 p-6">
+      <div className="min-h-full pb-16 md:pb-24 p-3 sm:p-6">
         <button
           onClick={() => navigate("/playlists")}
-          className="mb-6 flex items-center gap-2 text-zinc-400 hover:text-white transition"
+          className="mb-4 sm:mb-6 flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
           Back to Playlists
         </button>
 
         {/* Playlist Details Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-end gap-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl p-8 shadow-[0_0_40px_rgba(168,85,247,0.12)]">
+        <div className="flex flex-col sm:flex-row items-center sm:items-end text-center sm:text-left gap-4 sm:gap-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl p-4 sm:p-8 shadow-[0_0_40px_rgba(168,85,247,0.12)]">
           {/* Cover Art / Thumbnails */}
-          <div className="h-44 w-44 flex-shrink-0 overflow-hidden rounded-2xl bg-zinc-900 shadow-2xl flex items-center justify-center">
+          <div className="h-32 w-32 sm:h-44 sm:w-44 flex-shrink-0 overflow-hidden rounded-2xl bg-zinc-900 shadow-2xl flex items-center justify-center">
             {thumbnails.length >= 4 ? (
               <div className="grid grid-cols-2 grid-rows-2 h-full w-full">
                 {thumbnails.map((t, idx) => (
@@ -161,60 +161,60 @@ function PlaylistPage() {
               <img src={thumbnails[0]} alt="" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-violet-950/40">
-                <Music size={56} className="text-violet-400/60" />
+                <Music size={44} className="text-violet-400/60 sm:w-[56px] sm:h-[56px]" />
               </div>
             )}
           </div>
 
           {/* Info & Actions */}
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wider text-violet-400">
+          <div className="flex-1 min-w-0 w-full">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-violet-400">
               Playlist
             </p>
 
             {isEditingTitle ? (
-              <form onSubmit={handleSaveRename} className="mt-2 flex items-center gap-3">
+              <form onSubmit={handleSaveRename} className="mt-2 flex items-center justify-center sm:justify-start gap-2 sm:gap-3">
                 <input
                   type="text"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
-                  className="rounded-xl border border-violet-500 bg-zinc-900 px-4 py-2 text-2xl font-bold text-white focus:outline-none"
+                  className="rounded-xl border border-violet-500 bg-zinc-900 px-3 py-1.5 text-lg sm:text-2xl font-bold text-white focus:outline-none w-full max-w-xs"
                   autoFocus
                 />
                 <button
                   type="submit"
-                  className="rounded-xl bg-violet-600 p-2.5 text-white hover:bg-violet-500"
+                  className="rounded-xl bg-violet-600 p-2 text-white hover:bg-violet-500"
                 >
-                  <Check size={20} />
+                  <Check size={18} />
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsEditingTitle(false)}
-                  className="rounded-xl border border-white/10 p-2.5 text-zinc-400 hover:bg-white/10 hover:text-white"
+                  className="rounded-xl border border-white/10 p-2 text-zinc-400 hover:bg-white/10 hover:text-white"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </form>
             ) : (
-              <div className="mt-1 flex items-center gap-3">
-                <h1 className="truncate text-4xl font-extrabold text-white">
+              <div className="mt-1 flex items-center justify-center sm:justify-start gap-2 sm:gap-3">
+                <h1 className="truncate text-2xl sm:text-4xl font-extrabold text-white">
                   {activePlaylist.name}
                 </h1>
                 <button
                   onClick={handleStartRename}
                   title="Rename Playlist"
-                  className="rounded-xl p-2 text-zinc-400 hover:bg-white/10 hover:text-white transition"
+                  className="rounded-xl p-1.5 sm:p-2 text-zinc-400 hover:bg-white/10 hover:text-white transition"
                 >
-                  <Edit2 size={20} />
+                  <Edit2 size={18} />
                 </button>
               </div>
             )}
 
-            <p className="mt-2 text-sm text-zinc-400">
+            <p className="mt-1 text-xs sm:text-sm text-zinc-400">
               {songCount} {songCount === 1 ? "song" : "songs"}
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-4">
+            <div className="mt-4 sm:mt-6 flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-4">
               {songCount > 0 && (
                 <button
                   onClick={handlePlayAll}
@@ -226,8 +226,12 @@ function PlaylistPage() {
                     bg-gradient-to-r
                     from-violet-600
                     to-purple-600
-                    px-6
-                    py-3
+                    px-4
+                    sm:px-6
+                    py-2.5
+                    sm:py-3
+                    text-xs
+                    sm:text-sm
                     font-semibold
                     text-white
                     shadow-[0_0_25px_rgba(168,85,247,0.35)]
@@ -236,7 +240,7 @@ function PlaylistPage() {
                     hover:scale-105
                   "
                 >
-                  <Play size={20} fill="white" className="ml-0.5" />
+                  <Play size={18} fill="white" className="ml-0.5" />
                   Play All
                 </button>
               )}
@@ -251,8 +255,12 @@ function PlaylistPage() {
                   border
                   border-red-500/30
                   bg-red-500/10
-                  px-5
-                  py-3
+                  px-4
+                  sm:px-5
+                  py-2.5
+                  sm:py-3
+                  text-xs
+                  sm:text-sm
                   font-medium
                   text-red-400
                   transition
@@ -260,7 +268,7 @@ function PlaylistPage() {
                   hover:text-red-300
                 "
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} />
                 Delete Playlist
               </button>
             </div>
